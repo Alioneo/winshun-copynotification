@@ -84,7 +84,7 @@ WinShun 自己写剪贴板时不弹，比如在历史里粘贴、从历史里再
 ## 源码与构建
 
 源码仓库：`https://github.com/Alioneo/winshun-copynotification`
-版本：0.3.2，标签 v0.3.2，提交号发布后补进本节。
+版本：0.3.2，标签 v0.3.2，提交号 2a1dc80。
 构建记录：GitHub Actions 在推送 v* 标签时构建并打包，Release 附件就是工作流产出的包。
 
 本地构建命令：cargo build --release
