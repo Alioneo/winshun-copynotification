@@ -1,0 +1,7 @@
+/target/
+/dist/
+/.selftest/
+/template-backup/
+*.old
+*.log
+*.wsplugin

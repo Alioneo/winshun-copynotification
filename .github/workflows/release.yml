@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 固定 Rust 工具链
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.99.1
+
+      - name: 编译
+        run: cargo build --release --locked
+
+      - name: 打包 .wsplugin
+        shell: pwsh
+        run: |
+          $version = (Get-Content plugin.json -Raw -Encoding UTF8 | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_NAME -and $env:GITHUB_REF_NAME -ne "v$version") {
+            throw "tag $env:GITHUB_REF_NAME 与 plugin.json 版本 $version 不一致"
+          }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item target/release/clipboard-notify.exe dist/
+          Copy-Item plugin.json, README.md, LICENSE dist/
+          Compress-Archive -Path dist/plugin.json, dist/clipboard-notify.exe, dist/README.md, dist/LICENSE -DestinationPath "dist/alioneo.copynotification-$version.wsplugin" -Force
+          Get-ChildItem dist | Select-Object Name, Length
+
+      - name: 上传 Release 资产
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.wsplugin
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: false

@@ -1,0 +1,43 @@
+[package]
+name = "clipboard-notify"
+version = "0.3.2"
+edition = "2021"
+description = "WinShun 常驻插件：剪贴板复制提示 + 小米剪贴接力（文字卡 / 图片缩略图 / 音效）"
+
+[dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_DataExchange",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_UI_Shell",
+    "Win32_Graphics_Gdi",
+    "Win32_System_Threading",
+    "Win32_Security",
+    "Win32_System_SystemInformation",
+    "Win32_System_Registry",
+    "Win32_Graphics_GdiPlus",
+    "Win32_Media_Audio",
+    "Win32_UI_HiDpi",
+] }
+# PNG 解码走纯 Rust，避免 GDI+ 流式解码在复用表面/并发时的不稳定
+png = { version = "0.17", default-features = false }
+# 文件图片解码（资源管理器复制单个图片文件时显示缩略图），只启用需要的格式
+image = { version = "0.25", default-features = false, features = [
+    "png",
+    "jpeg",
+    "gif",
+    "webp",
+    "bmp",
+    "tiff",
+    "ico",
+] }
+serde_json = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

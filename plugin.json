@@ -1,0 +1,186 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LingCore/WinShun-plugins/main/schema/plugin.schema.json",
+  "manifest": 1,
+  "id": "alioneo.copynotification",
+  "name": {
+    "zh": "剪贴板通知",
+    "en": "Clipboard notification"
+  },
+  "version": "0.3.2",
+  "author": "Alioneo",
+  "license": "MIT",
+  "homepage": "https://github.com/Alioneo/winshun-copynotification",
+  "description": {
+    "zh": "复制文字或图片时在桌面右下角弹出一张轻提示卡片，并把手机（小米互联）同步过来的内容接力写入剪贴板；不抢焦点、不打断输入",
+    "en": "A small card at the bottom right when you copy text or an image, and relays phone (Xiaomi) clipboard content; it never takes focus"
+  },
+  "minWinShun": "0.22.0",
+  "runtime": {
+    "mode": "resident",
+    "program": "clipboard-notify.exe",
+    "start": "eager",
+    "idleExitSec": 0,
+    "memoryMB": 512
+  },
+  "permissions": [
+    "ui",
+    "clipboard:read",
+    "clipboard:write"
+  ],
+  "commands": [
+    {
+      "id": "main",
+      "keyword": "剪贴板通知",
+      "title": {
+        "zh": "剪贴板通知",
+        "en": "Clipboard notification"
+      },
+      "hint": {
+        "zh": "查看插件状态",
+        "en": "Show plugin status"
+      },
+      "actions": [
+        {
+          "id": "default",
+          "title": {
+            "zh": "关闭",
+            "en": "Close"
+          },
+          "key": "Enter"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "key": "sound",
+      "type": "bool",
+      "title": {
+        "zh": "复制音效",
+        "en": "Copy sound"
+      },
+      "hint": {
+        "zh": "复制时播放提示音",
+        "en": "Play a sound on copy"
+      },
+      "default": true
+    },
+    {
+      "key": "volume",
+      "type": "number",
+      "title": {
+        "zh": "音效音量",
+        "en": "Volume"
+      },
+      "hint": {
+        "zh": "0-100",
+        "en": "0-100"
+      },
+      "default": 70
+    },
+    {
+      "key": "ignore_process",
+      "type": "text",
+      "title": {
+        "zh": "忽略进程",
+        "en": "Ignored processes"
+      },
+      "hint": {
+        "zh": "不弹提示的写入方，逗号分隔，可省略 .exe",
+        "en": "Writers that get no card; comma-separated, .exe optional"
+      },
+      "default": "winshun.exe"
+    },
+    {
+      "key": "duration_ms",
+      "type": "number",
+      "title": {
+        "zh": "停留时长（毫秒）",
+        "en": "Duration (ms)"
+      },
+      "hint": {
+        "zh": "500-10000",
+        "en": "500-10000"
+      },
+      "default": 1500
+    },
+    {
+      "key": "max_width",
+      "type": "number",
+      "title": {
+        "zh": "卡片最大宽度",
+        "en": "Max width"
+      },
+      "hint": {
+        "zh": "240-800 逻辑像素",
+        "en": "240-800 logical pixels"
+      },
+      "default": 380
+    },
+    {
+      "key": "opacity",
+      "type": "number",
+      "title": {
+        "zh": "不透明度",
+        "en": "Opacity"
+      },
+      "hint": {
+        "zh": "30-100",
+        "en": "30-100"
+      },
+      "default": 100
+    },
+    {
+      "key": "thumbnail",
+      "type": "bool",
+      "title": {
+        "zh": "显示图片缩略图",
+        "en": "Show image thumbnails"
+      },
+      "hint": {
+        "zh": "关闭后图片只显示文字卡片",
+        "en": "When off, images show a text card"
+      },
+      "default": true
+    },
+    {
+      "key": "animation",
+      "type": "bool",
+      "title": {
+        "zh": "淡入淡出动画",
+        "en": "Fade animation"
+      },
+      "hint": {
+        "zh": "关闭后直接显示 / 隐藏",
+        "en": "When off, show and hide at once"
+      },
+      "default": true
+    },
+    {
+      "key": "quiet_window_sec",
+      "type": "number",
+      "title": {
+        "zh": "同内容静默窗（秒）",
+        "en": "Same-content quiet window (s)"
+      },
+      "hint": {
+        "zh": "0-300，0 表示关闭",
+        "en": "0-300; 0 turns it off"
+      },
+      "default": 30
+    },
+    {
+      "key": "log",
+      "type": "bool",
+      "title": {
+        "zh": "写入日志",
+        "en": "Write log"
+      },
+      "hint": {
+        "zh": "写插件数据目录下的 plugin.log，不含剪贴板明文",
+        "en": "Write plugin.log in the data folder; never clipboard text"
+      },
+      "default": false
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+1 VERSIONINFO
+FILEVERSION 0,3,2,0
+PRODUCTVERSION 0,3,2,0
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080404b0"
+    BEGIN
+      VALUE "CompanyName", "WinShun plugin"
+      VALUE "FileDescription", "MIClipboard"
+      VALUE "FileVersion", "0.3.2.0"
+      VALUE "InternalName", "clipboard-notify"
+      VALUE "OriginalFilename", "clipboard-notify.exe"
+      VALUE "ProductName", "MIClipboard"
+      VALUE "ProductVersion", "0.3.2.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0804, 1200
+  END
+END
