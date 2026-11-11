@@ -1,6 +1,6 @@
 [package]
 name = "clipboard-notify"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 description = "WinShun 常驻插件：剪贴板复制提示 + 小米剪贴接力（文字卡 / 图片缩略图 / 音效）"
 

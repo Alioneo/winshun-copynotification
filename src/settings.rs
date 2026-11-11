@@ -9,8 +9,10 @@ use serde_json::Value;
 
 /// 默认音量（百分比），与 plugin.json 的 default 一致。
 pub const DEFAULT_VOLUME: u32 = 70;
-/// 默认同内容静默窗（秒）。
-pub const DEFAULT_QUIET_SEC: u32 = 30;
+/// 默认同内容静默窗（秒）；默认 0 = 不静默，用户主动复制每次都提示。
+pub const DEFAULT_QUIET_SEC: u32 = 0;
+/// 默认无所有者记忆窗（分钟）；0 = 关闭这项静默。
+pub const DEFAULT_NO_OWNER_MEMORY_MIN: u32 = 15;
 /// 默认忽略进程。
 pub const DEFAULT_IGNORE_PROCESS: &str = "winshun.exe";
 
@@ -23,6 +25,7 @@ static OPACITY: AtomicU32 = AtomicU32::new(100);
 static THUMBNAIL: AtomicBool = AtomicBool::new(true);
 static ANIMATION: AtomicBool = AtomicBool::new(true);
 static QUIET_SEC: AtomicU32 = AtomicU32::new(DEFAULT_QUIET_SEC);
+static NO_OWNER_MEMORY_MIN: AtomicU32 = AtomicU32::new(DEFAULT_NO_OWNER_MEMORY_MIN);
 static LOG: AtomicBool = AtomicBool::new(false);
 /// 宿主给的数据目录（WS_DATA_DIR 的等价物）；日志只写这里。
 static DATA_DIR: Mutex<Option<PathBuf>> = Mutex::new(None);
@@ -66,6 +69,9 @@ pub fn apply(v: &Value) {
     if let Some(n) = v.get("quiet_window_sec").and_then(as_u32) {
         QUIET_SEC.store(n.min(300), Ordering::SeqCst);
     }
+    if let Some(n) = v.get("no_owner_memory_min").and_then(as_u32) {
+        NO_OWNER_MEMORY_MIN.store(n.min(1440), Ordering::SeqCst);
+    }
     if let Some(b) = v.get("log").and_then(as_bool) {
         LOG.store(b, Ordering::SeqCst);
     }
@@ -74,7 +80,7 @@ pub fn apply(v: &Value) {
         *IGNORE.lock().unwrap_or_else(|e| e.into_inner()) = list;
     }
     log_line(&format!(
-        "设置：sound={} volume={} duration={}ms max_width={} opacity={} thumbnail={} animation={} quiet={}s log={} ignore=[{}]",
+        "设置：sound={} volume={} duration={}ms max_width={} opacity={} thumbnail={} animation={} quiet={}s no_owner_mem={}min log={} ignore=[{}]",
         sound(),
         volume(),
         duration_ms(),
@@ -83,6 +89,7 @@ pub fn apply(v: &Value) {
         thumbnail(),
         animation(),
         quiet_sec(),
+        no_owner_memory_min(),
         log_enabled(),
         ignore_list().join(", ")
     ));
@@ -123,6 +130,15 @@ pub fn quiet_sec() -> u32 {
 /// 同内容静默窗（毫秒）；0 表示不做这项去重。
 pub fn quiet_ms() -> u128 {
     quiet_sec() as u128 * 1000
+}
+
+pub fn no_owner_memory_min() -> u32 {
+    NO_OWNER_MEMORY_MIN.load(Ordering::SeqCst)
+}
+
+/// 无所有者记忆窗（毫秒）；0 表示不做这项静默。
+pub fn no_owner_memory_ms() -> u128 {
+    no_owner_memory_min() as u128 * 60_000
 }
 
 pub fn log_enabled() -> bool {

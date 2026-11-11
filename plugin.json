@@ -6,7 +6,7 @@
     "zh": "剪贴板通知",
     "en": "Clipboard notification"
   },
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "Alioneo",
   "license": "MIT",
   "homepage": "https://github.com/Alioneo/winshun-copynotification",
@@ -167,7 +167,20 @@
         "zh": "0-300，0 表示关闭",
         "en": "0-300; 0 turns it off"
       },
-      "default": 30
+      "default": 0
+    },
+    {
+      "key": "no_owner_memory_min",
+      "type": "number",
+      "title": {
+        "zh": "无所有者记忆窗（分钟）",
+        "en": "Ownerless rewrite memory (min)"
+      },
+      "hint": {
+        "zh": "0-1440，0 表示关闭；无窗口后台写入窗内出现过的旧内容时静默",
+        "en": "0-1440; 0 turns it off; ownerless background rewrites of recently seen content stay silent"
+      },
+      "default": 15
     },
     {
       "key": "log",

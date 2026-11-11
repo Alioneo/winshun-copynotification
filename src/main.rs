@@ -61,6 +61,8 @@ static MAIN_HWND: AtomicIsize = AtomicIsize::new(0);
 static REQUEST_EXIT: AtomicBool = AtomicBool::new(false);
 /// 同内容静默窗的最近一次真正展示（内容指纹 + 时间）。
 static LAST_NOTICE: Mutex<Option<(Instant, String)>> = Mutex::new(None);
+/// 记忆窗内出现过的具体内容键（含被去重拦下的），供无所有者重写旧内容的判定。
+static RECENT_KEYS: Mutex<Vec<(String, Instant)>> = Mutex::new(Vec::new());
 /// 接力单飞：同一时刻只跑一个接力，期间同步方的重复写入直接丢弃（旧版行为）。
 static RELAY_ACTIVE: AtomicBool = AtomicBool::new(false);
 /// 最近一次成功接力的时刻和内容：防止同一次复制的第二次写入被再接力一遍。
@@ -494,6 +496,36 @@ unsafe fn clipboard_notice() -> Option<ClipboardNotice> {
 
 /// 展示一条通知；同一内容在 quiet_window_sec 内被再次写入时跳过（0 = 关闭这项去重）。
 unsafe fn show_notice(notice: ClipboardNotice, seq: u32, owner: &str, since: Instant) {
+    // 无所有者的后台写入（远程工具退出回写、系统组件重写等）：
+    // 具体内容在记忆窗内出现过则视为旧内容重写，静默跳过；新内容照常提示。
+    // 粗粒度键（files / image-fallback）不代表具体内容，不参与该判定。
+    // 窗长由设置 no_owner_memory_min 决定，0 = 关闭这项静默。
+    let memory_ms = settings::no_owner_memory_ms();
+    let key_specific = notice.key.starts_with("text:")
+        || notice.key.starts_with("image:")
+        || notice.key.starts_with("file:");
+    if memory_ms > 0 && key_specific {
+        let replay = {
+            let mut recent = RECENT_KEYS.lock().unwrap_or_else(|e| e.into_inner());
+            recent.retain(|(_, at)| at.elapsed().as_millis() < memory_ms);
+            let replay =
+                owner == "(无所有者)" && recent.iter().any(|(key, _)| *key == notice.key);
+            if let Some(entry) = recent.iter_mut().find(|(key, _)| *key == notice.key) {
+                entry.1 = Instant::now();
+            } else {
+                recent.push((notice.key.clone(), Instant::now()));
+            }
+            replay
+        };
+        if replay {
+            settings::log_line(&format!(
+                "无所有者重写旧内容（{} 分钟内已提示过），跳过 seq={seq} 键={}",
+                memory_ms / 60_000,
+                notice.key
+            ));
+            return;
+        }
+    }
     let quiet = settings::quiet_ms();
     let duplicate = {
         let mut last = LAST_NOTICE.lock().unwrap_or_else(|e| e.into_inner());
